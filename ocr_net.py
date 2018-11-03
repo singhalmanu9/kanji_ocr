@@ -1,5 +1,5 @@
 import sys
-
+import pickle
 from keras.models import Sequential
 from keras.layers import LSTM, Embedding
 from keras.layers import Masking
@@ -15,10 +15,16 @@ import re
 import string
 
 
+
+""" initializing the kanji_enum """
+f = open('jis_kanji_value_dictionary', 'rb')
+kanji_enum = pickle.loads(f.read())
+f.close()
+
 input_shape = (64, 63, 1);
-
-list_of_chars = open('path to file', 'r').read();
-
+#do this for each set of characters? make training and dev set??
+list_of_chars = open('path to file', 'r').read(); 
+#i THINK i understand what this should be but
 train, test = prepare_data(list_of_chars);
 
 model = Sequential();
@@ -32,5 +38,9 @@ model.add(Dropout(.5))
 model.add(Dense(len(list_of_chars, activation='softmax')))
 
 model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+print(model.summary())
 
-model.fit([pair[0] for pair in train], [pair[1] for pair in train], validation_data= ([pair[0] for pair in test], [pair[1] for pair in test]))
+
+BATCH_SIZE=256
+NUM_EPOCHS=2
+model.fit([pair[0] for pair in train], [pair[1] for pair in train],epochs = NUM_EPOCHS, batch_size = BATCH_SIZE, validation_data= ([pair[0] for pair in test], [pair[1] for pair in test]))
