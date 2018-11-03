@@ -2,7 +2,8 @@
 from collections import Counter
 import struct
 from PIL import Image, ImageEnhance
- 
+import bitstring
+import codecs
 filename = 'data/ETL1/ETL1C_01'
 
 def make_images_9(filename):
@@ -17,11 +18,11 @@ def make_images_9(filename):
 		    if hex(r[1]) == "0x2422":
 		    	print(c[hex(r[1])])
 		    i1 = Image.frombytes('1', (64, 63), r[3], 'raw')
-		    fn = 'img/ETL9B_{xx}_{yy}_{zz}.png'.format(xx = (r[0]-1)%20+1,yy = hex(r[1])[-4:], zz = c[hex(r[1])])
+		    fn = 'img/ETL9B_{xx}_{yy}_{zz}.png'.format(xx = (r[0]-1)%20+1,yy = str(hex(r[1])[-4:],'iso2022_jp'), zz = c[str(hex(r[1]))])
 		    i1.save(fn, 'PNG')
 
 def make_images_1(filename):
-	record_size = 2052;
+	record_size = 2052
 	c = Counter();
 	with open(filename, 'rb') as f:
 		for skip in range(0, 11288):
@@ -48,6 +49,37 @@ def make_images_8(filename):
 			fn = 'ETL8B2_{:d}_{:s}.png'.format((r[0]-1)%20+1, hex(r[1])[-4:])
 			i1.save("img/" + fn, 'PNG')
 
-files = ['data/ETL8B/ETL8B2C' + str(i) for i in range(1,4)]
+def make_images_2(filename, skipsize):
+	record_size = 2745
+	t56s = '0123456789[#@:>? ABCDEFGHI&.](<  JKLMNOPQR-$*);\'|/STUVWXYZ ,%="!'
+	def T56(c):
+	    return t56s[c]
+	 
+	with codecs.open('co59-utf8.txt', 'r', 'utf-8') as co59f:
+	    co59t = co59f.read()
+	co59l = co59t.split()
+	CO59 = {}
+	for c in co59l:
+	    ch = c.split(':')
+	    co = ch[1].split(',')
+	    CO59[(int(co[0]),int(co[1]))] = ch[0]
+	 
+	for skip in range(skipsize):
+		f = bitstring.ConstBitStream(filename=filename)
+		f.pos = skip * 6 * 3660
+		r = f.readlist('int:36,uint:6,pad:30,6*uint:6,6*uint:6,pad:24,2*uint:6,pad:180,bytes:2700') 
+		print (r[0], T56(r[1]), "".join(map(T56, r[2:8])), "".join(map(T56, r[8:14])), CO59[tuple(r[14:16])],bytes(CO59[tuple(r[14:16])],'iso2022_jp').decode("iso2022_jp"))
+		iF = Image.frombytes('F', (60,60), r[16], 'bit', 6)
+		iP = iF.convert('L')
+		fn = '{:s}.png'.format(CO59[tuple(r[14:16])])
+		#iP.save(fn, 'PNG', bits=6)
+		enhancer = ImageEnhance.Brightness(iP)
+		iE = enhancer.enhance(4)
+		iE.save("img/" + fn, 'PNG')
+
+files = ['data/ETL2/ETL2_' + str(i) for i in range(1,6)]
+i = 0
+skipsize = [9056,10480,11360,10480,11420]
 for file in files:
-	make_images_8(file)
+	make_images_2(file,skipsize[i])
+	i+=1
