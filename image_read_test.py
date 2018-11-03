@@ -24,19 +24,20 @@ def make_images_1(filename):
 	record_size = 2052;
 	c = Counter();
 	with open(filename, 'rb') as f:
-		for skip in range(0, 11561)
-	    f.seek(skip * 2052)
-	    s = f.read(2052)
-	    r = struct.unpack('>H2sH6BI4H4B4x2016s4x', s)
-	    iF = Image.frombytes('F', (64, 63), r[18], 'bit', 4)
-	    iP = iF.convert('L')
-	    fn = 'img/ETL1_{xx}_{yy}_{zz}.png'.format(xx = (r[2]-1)%20+1,yy = hex(r[3])[-4:], zz = c[hex(r[3])]);
+		for skip in range(0, 11288):
+		    f.seek(skip * record_size)
+		    s = f.read(record_size)
+		    print(skip)
+		    r = struct.unpack('>H2sH6BI4H4B4x2016s4x', s)
+		    iF = Image.frombytes('F', (64, 63), r[18], 'bit', 4)
+		    iP = iF.convert('L')
+		    fn = 'img/ETL1_{xx}_{yy}_{zz}.png'.format(xx = (r[2]-1)%20+1,yy = hex(r[3])[-4:], zz = c[hex(r[3])]);
 	    # iP.save(fn, 'PNG', bits=4)
-	    enhancer = ImageEnhance.Brightness(iP)
-	    iE = enhancer.enhance(16)
-	    iE.save(fn, 'PNG')
+		    enhancer = ImageEnhance.Brightness(iP)
+		    iE = enhancer.enhance(16)
+		    iE.save(fn, 'PNG')
 
-files = ['data/ETL1/ETL1C_0' + str(i) for i in range(1, 10)]
+files = ['data/ETL1/ETL1C_' + str(i) for i in range(13, 14)]
 
 for file in files:
 	make_images_1(file)
