@@ -8,6 +8,7 @@ from keras.layers import TimeDistributed
 from keras.layers import Bidirectional
 from keras.layers import Flatten
 from keras.layers import Dropout
+from prepare_data import make_train_test;
 
 import numpy as np
 import random
@@ -25,7 +26,7 @@ input_shape = (64, 63, 1);
 #do this for each set of characters? make training and dev set??
 list_of_chars = open('path to file', 'r').read(); 
 #i THINK i understand what this should be but
-train, test = prepare_data(list_of_chars);
+train, test = make_train_test(list_of_chars);
 
 model = Sequential();
 model.add(Conv2D(100, kernel_size=(5, 5), activation='relu', input_shape=input_shape))
