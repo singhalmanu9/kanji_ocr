@@ -32,7 +32,7 @@ train, test = make_train_test(list_of_chars);
 trainx = np.array([pair[0] for pair in train]); trainy = np.array([pair[1] for pair in train]);
 testx = np.array([pair[0] for pair in test]); testy = np.array([pair[1] for pair in test]);
 trainx = trainx.reshape(trainx.shape[0], 63, 64, 1);
-trainy = trainy.reshape(trainy.shape[0], 1, len(list_of_chars));
+testx = testx.reshape(testx.shape[0], 63, 64, 1);
 
 model = Sequential();
 model.add(Conv2D(100, kernel_size=(5, 5), activation='relu', input_shape=input_shape))
