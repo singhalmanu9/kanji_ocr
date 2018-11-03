@@ -21,15 +21,17 @@ def make_images_9(filename):
 		    i1.save(fn, 'PNG')
 
 def make_images_1(filename):
-	skip = 100
+	record_size = 2052;
+	c = Counter();
 	with open(filename, 'rb') as f:
+		for skip in range(0, 11561)
 	    f.seek(skip * 2052)
 	    s = f.read(2052)
 	    r = struct.unpack('>H2sH6BI4H4B4x2016s4x', s)
 	    iF = Image.frombytes('F', (64, 63), r[18], 'bit', 4)
-	    iP = iF.convert('P')
-	    fn = "{:1d}{:4d}{:2x}.png".format(r[0], r[2], r[3]);
-	    iP.save(fn, 'PNG', bits=4)
+	    iP = iF.convert('L')
+	    fn = 'img/ETL1_{xx}_{yy}_{zz}.png'.format(xx = (r[2]-1)%20+1,yy = hex(r[3])[-4:], zz = c[hex(r[3])]);
+	    # iP.save(fn, 'PNG', bits=4)
 	    enhancer = ImageEnhance.Brightness(iP)
 	    iE = enhancer.enhance(16)
 	    iE.save(fn, 'PNG')
