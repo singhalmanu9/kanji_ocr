@@ -56,5 +56,13 @@ print(model.summary())
 
 
 BATCH_SIZE=256
-NUM_EPOCHS=2
+NUM_EPOCHS=7
 model.fit(trainx, trainy, epochs = NUM_EPOCHS, batch_size = BATCH_SIZE, validation_data= (testx, testy))
+# serialize model to JSON
+model_json = model.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("model.h5")
+print("Saved model to disk")
+
