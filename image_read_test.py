@@ -37,7 +37,17 @@ def make_images_1(filename):
 		    iE = enhancer.enhance(16)
 		    iE.save(fn, 'PNG')
 
-files = ['data/ETL1/ETL1C_' + str(i) for i in range(13, 14)]
+def make_images_8(filename):
+	with open(filename, 'rb') as f:
+		for skip in range(0, 51201):
+			f.seek((skip) * 512)
+			print(skip)
+			s = f.read(512)
+			r = struct.unpack('>2H4s504s',s)
+			i1 = Image.frombytes('1', (64, 63), r[3], 'raw')
+			fn = 'ETL8B2_{:d}_{:s}.png'.format((r[0]-1)%20+1, hex(r[1])[-4:])
+			i1.save("img/" + fn, 'PNG')
 
+files = ['data/ETL8B/ETL8B2C' + str(i) for i in range(1,4)]
 for file in files:
-	make_images_1(file)
+	make_images_8(file)

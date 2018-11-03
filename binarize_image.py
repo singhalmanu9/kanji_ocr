@@ -14,3 +14,4 @@ for fn in files:
 	binarizes = 1.0* (img > 110)
 	imsave("img/" + fn, binarizes)
 print("task finished")
+
