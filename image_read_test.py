@@ -3,7 +3,7 @@
 import struct
 from PIL import Image
  
-filename = 'data/ETL9B/ETL9B_1'
+filename = 'data/ETL1/ETL1C_01'
 
 
 record_size = 576
