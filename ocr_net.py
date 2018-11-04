@@ -40,10 +40,10 @@ trainx = trainx.reshape(trainx.shape[0], 63, 64, 1);
 testx = testx.reshape(testx.shape[0], 63, 64, 1);
 
 model = Sequential();
-model.add(Conv2D(256, kernel_size=(2, 2), activation='tanh', input_shape=input_shape))
-model.add(Conv2D(256, (3, 3), activation='tanh'))
+model.add(Conv2D(64, kernel_size=(3, 3), activation='tanh', input_shape=input_shape))
+model.add(Conv2D(128, (3, 3), strides = (1,1), activation='relu'))
+model.add(Conv2D(256, (3, 3), strides = (2,2), activation='tanh'))
 model.add(Conv2D(512, (2, 2), activation='tanh'))
-model.add(Conv2D(128, (4, 4), strides = (2,2), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Conv2D(128, (2, 2), strides = (1,1), activation='tanh'))
 model.add(Dropout(.1))
@@ -51,7 +51,7 @@ model.add(Flatten())
 model.add(Dense(120, activation='tanh'))
 model.add(Dense(len(list_of_chars), activation='softmax'))
 
-model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
+model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 
 
