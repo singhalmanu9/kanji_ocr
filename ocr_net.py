@@ -10,13 +10,19 @@ from keras.layers import Dropout
 from keras.layers import Conv2D
 from prepare_data import make_train_test;
 from keras.layers import MaxPooling2D
+from keras.layers import ConvLSTM2D
+from keras.layers import UpSampling2D
 import numpy as np
 import random
 import re
 import string
-
-
-
+from keras import backend as K
+import tensorflow as tf
+import datetime
+x = datetime.datetime.now()
+date = str(x)[:-13]
+print(K.tensorflow_backend._get_available_gpus())
+sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 """ initializing the kanji_enum """
 f = open('jis_kanji_value_dictionary', 'rb')
 kanji_enum = pickle.loads(f.read())
@@ -40,28 +46,36 @@ trainx = trainx.reshape(trainx.shape[0], 63, 64, 1);
 testx = testx.reshape(testx.shape[0], 63, 64, 1);
 
 model = Sequential();
-model.add(Conv2D(256, kernel_size=(3, 3), activation='tanh', input_shape=input_shape))
-model.add(Conv2D(256, (3, 3), strides = (1,1), activation='relu'))
+model.add(Conv2D(64, kernel_size=(3, 3), activation='tanh', input_shape=input_shape))
+model.add(Dropout(.15))
+model.add(Conv2D(64, (3, 3), strides = (1,1), activation='tanh'))
+model.add(Conv2D(64, (2,2), strides = (1,1), activation='tanh'))
+model.add(Dropout(.15))
 model.add(MaxPooling2D(pool_size=(2,2)))
-model.add(Conv2D(256, (3, 3), strides = (2,2), activation='tanh'))
-model.add(Conv2D(512, (2, 2), activation='tanh'))
+model.add(Conv2D(64, (4, 4), strides = (1,1), activation='tanh'))
+model.add(Conv2D(128, (3,3), strides = (1,1), activation='tanh'))
+model.add(Conv2D(128, (2,2), strides = (1,1), activation='tanh'))
+model.add(Dropout(.15))
+model.add(Conv2D(256, (2, 2), activation='tanh'))
 model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
 model.add(Dropout(.15))
+model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
+model.add(MaxPooling2D(pool_size=(2,2)))
 model.add(Flatten())
-model.add(Dense(120, activation='tanh'))
+model.add(Dense(256, activation='tanh'))
 model.add(Dense(len(list_of_chars), activation='softmax'))
 
 model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 
 
-BATCH_SIZE=256
-NUM_EPOCHS=12
+BATCH_SIZE=128
+NUM_EPOCHS=128
 model.fit(trainx, trainy, epochs = NUM_EPOCHS, batch_size = BATCH_SIZE, validation_data= (testx, testy))
 # serialize model to JSON
 model_json = model.to_json()
-with open("model.json", "w") as json_file:
+with open(date + "model.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
 model.save_weights("model.h5")
