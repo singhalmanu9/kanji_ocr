@@ -35,6 +35,12 @@ for code in code_to_hira:
 	if code in kanji_enum:
 		list_of_chars.append(code)
 
+
+f = open('jis_code_indices', 'wb');
+pickle.dump(list_of_chars, f);
+f.close();
+print('Wrote out list_of_chars to jis_code_indices');
+
 input_shape = (63, 64, 1);
 #do this for each set of characters? make training and dev set??
 #open('path to file', 'r').read(); 
