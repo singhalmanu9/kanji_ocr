@@ -3,15 +3,15 @@ currently, only the JIS to UTF8 dictionary exists for hiragana.
 The goal of this script is to make a JIS to UTF8 dictionary for each character based on radicals.
 This script takes no inputs, but yields the following output:
 
-{"hiragana": {jis:utf8,jis:utf8},
-"katakana": {jis:utf8,jis:utf8},
-radical1: {jis:utf8,jis:utf8},
-radical2: {jis:utf8,jis:utf8},
+{"hiragana": {jis:utf16,jis:utf16},
+"katakana": {jis:utf16,jis:utf16},
+radical1: {jis:utf16,jis:utf16},
+radical2: {jis:utf16,jis:utf16},
 ....,
 }
 
 where radical1 and radical2 are substituted names for 
-actual strings representing radicals in the radkfile.
+actual UTF16strings representing radicals in the radkfile.
 
 This will give sets of images to train nets on such that 
 can have lower dimensional sets can be used to train on 
