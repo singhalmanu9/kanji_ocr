@@ -55,5 +55,27 @@ new_s = s.replace("\\u","")
 with open('radicalMap', 'w') as outfile:
 	outfile.write(new_s)
 
-
+with open('radicalMap') as f:
+	radical_map = json.load(f)
 #TODO make the dictionary. kanji and hiragana will have to be done manually
+utf_jis = {}
+with open('All JIS codes','r', encoding ='utf-8') as charcodefile:
+	lines = charcodefile.readlines()
+for line in lines[1:]:
+	#0,1 not useful
+	#2 = jis
+	#6 = UTF16
+	#7 = char
+	line = line.split()
+	utf_jis.update({line[6]:line[2]})
+save_dic= {} #this is the outputted dictionary
+for rad in radical_map:
+	rad_map = {}
+	for k in radical_map[rad]:
+		if k in utf_jis:
+			rad_map.update({utf_jis[k]:k})
+			print("success")
+		else:
+			print(k)
+	save_dic.update({rad:rad_map})
+print(utf_jis)
