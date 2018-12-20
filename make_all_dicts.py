@@ -52,6 +52,7 @@ with open('radicalMap', 'w') as outfile:
 with open('radicalMap', 'r') as trimfile:
 	s = trimfile.read()
 new_s = s.replace("\\u","")
+new_s = new_s.upper()
 with open('radicalMap', 'w') as outfile:
 	outfile.write(new_s)
 
@@ -69,13 +70,37 @@ for line in lines[1:]:
 	line = line.split()
 	utf_jis.update({line[6]:line[2]})
 save_dic= {} #this is the outputted dictionary
+not_found = []
 for rad in radical_map:
 	rad_map = {}
 	for k in radical_map[rad]:
 		if k in utf_jis:
 			rad_map.update({utf_jis[k]:k})
-			print("success")
 		else:
-			print(k)
+			not_found.append(k)
 	save_dic.update({rad:rad_map})
-print(utf_jis)
+empty_rads = []
+for item in save_dic:
+	if not len(save_dic[item]):
+		empty_rads.append(item)
+for item in empty_rads:
+	save_dic.pop(item,None)
+#generating hiragana and katakana dictionaries
+with open("Hiragana JIS codes", 'r') as f:
+	lines = f.readlines()
+hira_map = {}
+for line in lines:
+	line = line.split()
+	hira_map.update({line[2]:line[-2]})
+save_dic.update({"hiragana":hira_map})
+with open("Katakana JIS codes", 'r') as f:
+		lines = f.readlines()
+kata_map = {}
+for line in lines:
+	line = line.split()
+	kata_map.update({line[2]:line[-2]})
+save_dic.update({"katakana":kata_map})
+
+with open('radical_jis_utf16_dict', 'w') as outfile:
+	json.dump(save_dic, outfile)
+	print("saved")
