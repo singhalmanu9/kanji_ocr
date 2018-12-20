@@ -20,6 +20,7 @@ data and then output predictions for each radical
 import pickle
 import codecs
 import json
+import os
 with open(file = 'radkfile', encoding = 'euc_jp') as radkstream:
 	radkstring = radkstream.read()
 start_parsing = False
@@ -100,6 +101,15 @@ for line in lines:
 	line = line.split()
 	kata_map.update({line[2]:line[-2]})
 save_dic.update({"katakana":kata_map})
+
+#final test: making sure every radical that needs to be here is
+g = set()
+for item in os.listdir('img/'):
+	g.add(item)
+jis_utf = {jis:utf for utf,jis in utf_jis.items()}
+for item in g:
+	if item.upper() not in jis_utf:
+		print(item.upper()) #The only thing that should print here is DS_STORE (on macs). If it isn't, manually check files
 
 with open('radical_jis_utf16_dict', 'w') as outfile:
 	json.dump(save_dic, outfile)
