@@ -21,6 +21,8 @@ import tensorflow as tf
 import datetime
 import json
 import os
+from scipy.misc import imread
+
 x = datetime.datetime.now()
 date = str(x)[:-13]
 print(K.tensorflow_backend._get_available_gpus())
@@ -32,10 +34,10 @@ def get_train_test(list_of_chars):
 	test_image_target_pairs = [];
 	for char in os.listdir('img/'):
 		char_images = []
-			for filename in os.listdir('img/' + char)
-				char_images.append(imread('img/' + char + '/' + filename))
-			np.random.shuffle(char_images)
-			target = np.zeros(len(list_of_chars) + 1)
+		for filename in os.listdir('img/' + char):
+			char_images.append(imread('img/' + char + '/' + filename))
+		np.random.shuffle(char_images)
+		target = np.zeros(len(list_of_chars) + 1)
 		if char in list_of_chars:
 			target[list_of_chars.index(char)] = 1 #in vocab
 		else:
@@ -71,6 +73,7 @@ def get_train_test(list_of_chars):
 
 with open('radical_jis_utf16_dict','r') as f:
 	rad_jis_utf16_dict = json.load(f)
+
 for model_key in list(rad_jis_utf16_dict.keys()):
 	input_shape = (63, 64, 1)
 	list_of_chars = list(rad_jis_utf16_dict[model_key].keys())
@@ -101,15 +104,17 @@ for model_key in list(rad_jis_utf16_dict.keys()):
 	model.add(MaxPooling2D(pool_size=(2,2)))
 	model.add(Flatten())
 	model.add(Dense(256, activation='tanh'))
-	model.add(Dense(len(list_of_chars), activation='softmax'))
+	model.add(Dense(len(list_of_chars) + 1, activation='softmax'))
 
 	model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
 	print(model.summary())
 
+	d = {i: 1 for i in range(0, len(list_of_chars))};
+	d[len(list_of_chars)] = .001;
 
 	BATCH_SIZE=128
 	NUM_EPOCHS=128
-	model.fit(trainx, trainy, epochs = NUM_EPOCHS, batch_size = BATCH_SIZE, validation_data= (testx, testy))
+	model.fit(trainx, trainy, epochs = NUM_EPOCHS, batch_size = BATCH_SIZE, validation_data= (testx, testy), class_weight = d);
 	# serialize model to JSON
 	model_json = model.to_json()
 	with open(model_key + "model.json", "w") as json_file:
@@ -117,4 +122,5 @@ for model_key in list(rad_jis_utf16_dict.keys()):
 	# serialize weights to HDF5
 	model.save_weights("model.h5")
 	print("Saved model to disk")
+	break;
 
