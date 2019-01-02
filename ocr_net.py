@@ -32,7 +32,10 @@ sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 def get_train_test(list_of_chars):
 	train_image_target_pairs = [];
 	test_image_target_pairs = [];
+	i = 0
 	for char in os.listdir('img/'):
+		if char == './DS_Store':
+			continue
 		char_images = []
 		for filename in os.listdir('img/' + char):
 			char_images.append(imread('img/' + char + '/' + filename))
@@ -85,26 +88,45 @@ for model_key in list(rad_jis_utf16_dict.keys()):
 	trainx = trainx.reshape(trainx.shape[0], 63, 64, 1)
 	testx = testx.reshape(testx.shape[0], 63, 64, 1)
 
-	model = Sequential();
-	model.add(Conv2D(64, kernel_size=(3, 3), activation='tanh', input_shape=input_shape))
-	model.add(Dropout(.1))
-	model.add(Conv2D(64, (3, 3), strides = (1,1), activation='tanh'))
-	model.add(Conv2D(64, (2,2), strides = (1,1), activation='tanh'))
-	model.add(Dropout(.1))
-	model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(128, (4, 4), strides = (1,1), activation='tanh'))
-	model.add(Conv2D(128, (3,3), strides = (1,1), activation='tanh'))
-	model.add(Conv2D(128, (2,2), strides = (1,1), activation='tanh'))
-	model.add(Dropout(.1))
-	model.add(Conv2D(128, (2, 2), activation='tanh'))
-	model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
-	model.add(Dropout(.1))
-	model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
-	model.add(MaxPooling2D(pool_size=(2,2)))
+	model = Sequential()
+	model.add(Convolution2D(64, 3, 3, border_mode='same', input_shape=input_shape, activation = 'relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Convolution2D(128, 3, 3, border_mode='same',activation = 'relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.25))
+	model.add(Convolution2D(256, 3, 3, border_mode='same',activation = 'relu'))
+	model.add(Convolution2D(256, 3, 3,activation = 'relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.25))
+	model.add(Convolution2D(512, 3, 3, border_mode='same',activation = 'relu'))
+	model.add(Convolution2D(512, 3, 3,activation = 'relu'))
+	model.add(MaxPooling2D(pool_size=(2, 2)))
+	model.add(Dropout(0.25))
 	model.add(Flatten())
-	model.add(Dense(256, activation='tanh'))
-	model.add(Dense(len(list_of_chars) + 1, activation='softmax'))
+	model.add(Dense(4096,activation = 'relu'))
+	model.add(Dropout(0.5))
+	model.add(Dense(4096,activation = 'relu'))
+	model.add(Dropout(0.5))
+	model.add(len(list_of_chars) + 1, activation='softmax')
+	# model.add(Conv2D(64, kernel_size=(3, 3), activation='tanh', input_shape=input_shape))
+	# model.add(Dropout(.1))
+	# model.add(Conv2D(64, (3, 3), strides = (1,1), activation='tanh'))
+	# model.add(Conv2D(64, (2,2), strides = (1,1), activation='tanh'))
+	# model.add(Dropout(.1))
+	# model.add(MaxPooling2D(pool_size=(2,2)))
+	# model.add(Conv2D(128, (4, 4), strides = (1,1), activation='tanh'))
+	# model.add(Conv2D(128, (3,3), strides = (1,1), activation='tanh'))
+	# model.add(Conv2D(128, (2,2), strides = (1,1), activation='tanh'))
+	# model.add(Dropout(.1))
+	# model.add(Conv2D(128, (2, 2), activation='tanh'))
+	# model.add(MaxPooling2D(pool_size=(2,2)))
+	# model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
+	# model.add(Dropout(.1))
+	# model.add(Conv2D(256, (2, 2), strides = (1,1), activation='tanh'))
+	# model.add(MaxPooling2D(pool_size=(2,2)))
+	# model.add(Flatten())
+	# model.add(Dense(256, activation='tanh'))
+	# model.add(Dense(len(list_of_chars) + 1, activation='softmax'))
 
 	model.compile(loss=keras.losses.categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
 	print(model.summary())
@@ -118,7 +140,7 @@ for model_key in list(rad_jis_utf16_dict.keys()):
 	# serialize model to JSON
 	model_json = model.to_json()
 	with open(model_key + "model.json", "w") as json_file:
-	    json_file.write(model_json)
+		json_file.write(model_json)
 	# serialize weights to HDF5
 	model.save_weights("model.h5")
 	print("Saved model to disk")
